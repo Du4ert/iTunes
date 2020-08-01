@@ -5,11 +5,16 @@ export const radioPlayerInit = () => {
     const radioHeaderBig = document.querySelector('.radio-header__big');
     const radioStop = document.querySelector('.radio-stop');
     const radioItems = document.querySelectorAll('.radio-item');
+    const radioVolumeDown = document.querySelector('.radio-volume__down');
+    const radioVolumeProgress = document.querySelector('.radio-volume__progress');
+    const radioVolumeUp = document.querySelector('.radio-volume__up');
 
     const audio = new Audio();
     audio.type = 'audio/aac';
 
-    
+    const volumeChange = value => {
+        audio.volume = value / 100;
+    }
 
     const playPause = () => {
         if (audio.paused) {
@@ -44,8 +49,24 @@ export const radioPlayerInit = () => {
         radioStop.disabled = false;
     });
 
+   
+
+    radioVolumeProgress.addEventListener('input', () => {
+        volumeChange(radioVolumeProgress.value);
+    });
+
+    radioVolumeDown.addEventListener('click', () => {
+        audio.muted = !audio.muted;
+    });
+    radioVolumeUp.addEventListener('click', () => {
+        const max = radioVolumeProgress.value = radioVolumeProgress.max;
+        volumeChange(max);
+        audio.muted = false;
+    });
+
     radioStop.addEventListener('click', playPause);
 
     radioStop.disabled = true;
+    radioVolumeProgress.value = audio.volume * 100;
 
-} 
+}
