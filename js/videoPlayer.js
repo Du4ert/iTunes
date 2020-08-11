@@ -91,4 +91,10 @@ export const videoPlayerInit = () => {
 
     videoVolumeBar.value = videoPlayer.volume * 100;
 
+    videoPlayerInit.stop = () => {
+        if (!videoPlayer.paused) {
+            togglePlay();
+        }
+    };
+
 }

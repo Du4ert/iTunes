@@ -1,5 +1,6 @@
 import addZero from './addZero.js';
 export const musicPlayerInit = () => {
+const audio = document.querySelector('.audio');
 const audioPlayer = document.querySelector('.audio-player');
 const audioImg = document.querySelector('.audio-img');
 const audioHeader = document.querySelector('.audio-header');
@@ -18,10 +19,20 @@ let currentTrackIndex = 1;
 //setTrackData(tracks[1]);
 
 function setTrackData(track) {
+    let paused = audioPlayer.paused;
     audioProgressTiming.style.width = 0;
     audioPlayer.src = `audio/${track}.mp3`;
     audioImg.src = `audio/${track}.jpg`;
     audioHeader.textContent = track.charAt(0).toUpperCase() + track.slice(1);
+    audioPlayer.addEventListener('canplay', () => {
+    timeUpdate();
+        
+    });
+    if (paused) {
+        audioPlayer.pause();
+    } else {
+        audioPlayer.play();
+    }
 }
 
 function prevAudioTrack() {
@@ -33,11 +44,6 @@ function prevAudioTrack() {
     let track= tracks[currentTrackIndex];
 
     setTrackData(track);
-    if (audioPlayer.paused) {
-        toggleAudioPlay();
-    } else {
-        audioPlayer.play()
-    }
 }
 
 
@@ -50,11 +56,6 @@ function nextAudioTrack() {
     let track= tracks[currentTrackIndex];
 
     setTrackData(track);
-    if (audioPlayer.paused) {
-        toggleAudioPlay();
-    } else {
-        audioPlayer.play()
-    }
 }
 
 function setAudioProgress(offset) {
@@ -67,16 +68,33 @@ function toggleAudioPlay() {
         audioPlayer.play();
         audioButtonPlay.classList.remove('fa-play');
         audioButtonPlay.classList.add('fa-pause');
+        audio.classList.add('play');
         
     } else {
         audioPlayer.pause();
         audioButtonPlay.classList.add('fa-play');
         audioButtonPlay.classList.remove('fa-pause');
+        audio.classList.remove('play');
     }
 }
 
 function volumeChange(value) {
     audioPlayer.volume = value / 100;
+}
+
+function timeUpdate() {
+    let currentTime = audioPlayer.currentTime || 0;
+    let duration = audioPlayer.duration || 0;
+
+    let currentSeconds = Math.floor(currentTime % 60);
+    let currentMinutes = Math.floor(currentTime / 60);
+
+    let durationSeconds = Math.floor(duration % 60);
+    let durationMinutes = Math.floor(duration / 60);
+
+    audioTimePassed.textContent = `${addZero(currentMinutes)}:${addZero(currentSeconds)}`;
+    audioTimeTotal.textContent = `${addZero(durationMinutes)}:${addZero(durationSeconds)}`;
+    audioProgressTiming.style.width = (currentTime / duration * 100) + '%'; 
 }
 
 audioNavigation.addEventListener('click', function(event) {
@@ -103,20 +121,9 @@ audioNavigation.addEventListener('click', function(event) {
     }
 });
 
-audioPlayer.addEventListener('timeupdate', function() {
-    let currentTime = audioPlayer.currentTime || 0;
-    let duration = audioPlayer.duration || 0;
 
-    let currentSeconds = Math.floor(currentTime % 60);
-    let currentMinutes = Math.floor(currentTime / 60);
 
-    let durationSeconds = Math.floor(duration % 60);
-    let durationMinutes = Math.floor(duration / 60);
-
-    audioTimePassed.textContent = `${addZero(currentMinutes)}:${addZero(currentSeconds)}`;
-    audioTimeTotal.textContent = `${addZero(durationMinutes)}:${addZero(durationSeconds)}`;
-    audioProgressTiming.style.width = (currentTime / duration * 100) + '%'; 
-});
+audioPlayer.addEventListener('timeupdate', timeUpdate);
 
 audioVolumeBar.addEventListener('input', () => {
     volumeChange(audioVolumeBar.value);
@@ -124,5 +131,9 @@ audioVolumeBar.addEventListener('input', () => {
 
 audioVolumeBar.value = audioPlayer.volume * 100;
 
-
+musicPlayerInit.stop = () => {
+    if (!audioPlayer.paused) {
+        toggleAudioPlay();
+    }
+};
 } 

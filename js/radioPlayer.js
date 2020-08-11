@@ -69,4 +69,10 @@ export const radioPlayerInit = () => {
     radioStop.disabled = true;
     radioVolumeProgress.value = audio.volume * 100;
 
+    radioPlayerInit.stop = () => {
+        if (!audio.paused) {
+            playPause();
+        }
+    };
+
 }
